@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            margin: 0 auto;
+            max-width: 400px;
+        }
+
+        button {
+            background-color: #f2f2f2;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+
+        .display {
+            background-color: #f9f9f9;
+            grid-column: span 4;
+            padding: 20px;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <button onclick="clearDisplay()">C</button>
+        <button onclick="appendNumber(7)">7</button>
+        <button onclick="appendNumber(8)">8</button>
+        <button onclick="appendNumber(9)">9</button>
+        <button onclick="appendOperator('/')">/</button>
+        <button onclick="appendNumber(4)">4</button>
+        <button onclick="appendNumber(5)">5</button>
+        <button onclick="appendNumber(6)">6</button>
+        <button onclick="appendOperator('*')">*</button>
+        <button onclick="appendNumber(1)">1</button>
+        <button onclick="appendNumber(2)">2</button>
+        <button onclick="appendNumber(3)">3</button>
+        <button onclick="appendOperator('-')">-</button>
+        <button onclick="appendNumber(0)">0</button>
+        <button onclick="calculateResult()">=</button>
+        <button onclick="appendOperator('+')">+</button>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let calculation = [];
+        let currentNumber = '';
+        let pendingOperator = '';
+
+        function appendNumber(number) {
+            if (number === '0' && currentNumber === '0') {
+                return;
+            }
+            currentNumber += number;
+            display.textContent = currentNumber;
+        }
+
+        function appendOperator(operator) {
+            if (currentNumber === '') {
+                return;
+            }
+            if (pendingOperator !== '') {
+                calculateResult();
+            }
+            calculation.push(Number(currentNumber));
+            calculation.push(operator);
+            currentNumber = '';
+            pendingOperator = operator;
+            display.textContent = operator;
+        }
+
+        function calculateResult() {
+            if (currentNumber !== '') {
+                calculation.push(Number(currentNumber));
+            }
+            let result = calculation[0];
+            for (let i = 1; i < calculation.length; i += 2) {
+                switch (calculation[i]) {
+                    case '+':
+                        result += calculation[i + 1];
+                        break;
+                    case '-':
+                        result -= calculation[i + 1];
+                        break;
+                    case '*':
+                        result *= calculation[i + 1];
+                        break;
+                    case '/':
+                        result /= calculation[i + 1];
+                        break;
+                }
+            }
+            display.textContent = result;
+        }
+
+        function clearDisplay(){
+            currentNumber = ''
+            display.textContent = "0";
+        }
+    </script>
+</body>
+
+</html>

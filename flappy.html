@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #87CEEB;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+    }
+  </style>
+  <title>Flappy Bird Game</title>
+</head>
+<body>
+
+<canvas id="flappyBirdCanvas" width="800" height="600"></canvas>
+
+<script>
+  const canvas = document.getElementById('flappyBirdCanvas');
+  const context = canvas.getContext('2d');
+  const birdSize = 40;
+  const gravity = 1;
+  const jumpHeight = -15;
+  let birdY = canvas.height / 2 - birdSize / 2;
+  let birdVelocity = 0;
+  let obstacles = [];
+  let score = 0;
+
+  function draw() {
+    // Clear the canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the bird
+    drawRect(50, birdY, birdSize, birdSize, 'yellow');
+
+    // Draw the obstacles
+    obstacles.forEach(obstacle => {
+      drawRect(obstacle.x, 0, obstacle.width, obstacle.topHeight, 'green');
+      drawRect(obstacle.x, canvas.height - obstacle.bottomHeight, obstacle.width, obstacle.bottomHeight, 'green');
+    });
+
+    // Draw the score
+    context.fillStyle = 'black';
+    context.font = '20px Arial';
+    context.fillText(`Score: ${score}`, 10, 30);
+  }
+
+  function drawRect(x, y, width, height, color) {
+    context.fillStyle = color;
+    context.fillRect(x, y, width, height);
+  }
+
+  function update() {
+    // Update bird position and velocity
+    birdVelocity += gravity;
+    birdY += birdVelocity;
+
+    // Check for collision with top and bottom
+    if (birdY < 0) {
+      birdY = 0;
+      birdVelocity = 0;
+    }
+    if (birdY + birdSize > canvas.height) {
+      birdY = canvas.height - birdSize;
+      birdVelocity = 0;
+    }
+
+    // Check for collision with obstacles
+    for (const obstacle of obstacles) {
+      if (
+        birdY < obstacle.topHeight ||
+        birdY + birdSize > canvas.height - obstacle.bottomHeight
+      ) {
+        gameOver();
+        return;
+      }
+
+      if (obstacle.x === 50) {
+        score++;
+      }
+
+      obstacle.x -= 5;
+
+      // Remove obstacles that are out of the canvas
+      if (obstacle.x + obstacle.width < 0) {
+        obstacles.shift();
+      }
+    }
+
+    // Generate new obstacles
+    if (Math.random() < 0.02) {
+      const obstacleHeight = Math.random() * (canvas.height - 200) + 50;
+      obstacles.push({
+        x: canvas.width,
+        width: 40,
+        topHeight: obstacleHeight,
+        bottomHeight: canvas.height - obstacleHeight - 150,
+      });
+    }
+
+    draw();
+  }
+
+  function jump() {
+    birdVelocity = jumpHeight;
+  }
+
+  function gameOver() {
+    alert(`Game Over! Your score is ${score}`);
+    birdY = canvas.height / 2 - birdSize / 2;
+    birdVelocity = 0;
+    obstacles = [];
+    score = 0;
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === ' ') {
+      jump();
+    }
+  });
+
+  setInterval(update, 20);
+</script>
+
+</body>
+</html>
